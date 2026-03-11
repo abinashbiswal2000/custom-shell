@@ -21,16 +21,18 @@ int main () {
 
         // Parse Input and get substrings
         subStringsPtr = (char **)malloc(sizeof(char *) * currentSize);
-        subStrIndex = 0;
+        subStrIndex = -1;
         while (inputStringPtr[inputIndex] != '\n') {
             
             if (inputStringPtr[inputIndex] == ' ') {
                 inputIndex += 1;
                 continue;
             }
+
+            subStrIndex += 1;
             
             // Check for realloc
-            if (subStrIndex + 1 == currentSize) {
+            if (subStrIndex == currentSize) {
                 currentSize *= 2;
                 char **temp = (char **)realloc(subStringsPtr, currentSize * sizeof(char *));
                 if (temp == NULL) {
@@ -51,13 +53,12 @@ int main () {
             }
             inputStringPtr[inputIndex] = '\0';
             inputIndex += 1;
-            subStrIndex += 1;
         }
 
         
         // Null terminating substring after checking if resizing is required
         subStrIndex += 1;
-        if (subStrIndex + 1 == currentSize) {
+        if (subStrIndex == currentSize) {
             currentSize *= 2;
             char **temp = (char **)realloc(subStringsPtr, currentSize * sizeof(char *));
             if (temp == NULL) {
@@ -69,9 +70,16 @@ int main () {
         subStringsPtr[subStrIndex] = NULL;
 
 
+        /*
+        Make sense of the instruction
+        
+        if subStringsPtr[0] is a builtin:
+            handle it directly
+        else:
+            fork → execvp(subStringsPtr[0], subStringsPtr) → wait
+        */ 
 
         // fork, exec, wait code to be written
-
 
 
         // Free Resources and restore defaults
