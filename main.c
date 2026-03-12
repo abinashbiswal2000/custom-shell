@@ -1,6 +1,7 @@
 #include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main () {
 
@@ -72,14 +73,24 @@ int main () {
 
         /*
         Make sense of the instruction
-        
+
         if subStringsPtr[0] is a builtin:
             handle it directly
         else:
             fork → execvp(subStringsPtr[0], subStringsPtr) → wait
         */ 
+       
+        // Handling Built-in Instructions
+        if (matchStrings(subStringsPtr[0] , "cd") == 0) {
 
-        // fork, exec, wait code to be written
+        } else if (matchStrings(subStringsPtr[0] , "exit") == 0) {
+
+        } else if (matchStrings(subStringsPtr[0] , "export") == 0) {
+
+        } else {
+
+        }
+
 
 
         // Free Resources and restore defaults
