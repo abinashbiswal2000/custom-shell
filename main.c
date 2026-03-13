@@ -16,6 +16,7 @@ int main () {
     char **subStringsPtr = NULL;
     int subStrIndex = 0;
     int lastIndex = 0;
+    int isBackgroundProcess = 0;
 
 
     while (1) {
@@ -125,6 +126,12 @@ int main () {
         } else {
             // Handle external commands
             // fork, exec, wait
+            if (matchStrings(subStringsPtr[lastIndex], "&") == 0) {
+                isBackgroundProcess = 1;
+                subStringsPtr[lastIndex] = NULL;
+            } else {
+                isBackgroundProcess = 0;
+            }
             pid_t pid = fork();
             if (pid < 0) {
                 printf("Fork Failed\n");
@@ -137,8 +144,7 @@ int main () {
                 // This is the parent process
                 // Wait for child's completion
                 int status;
-                if (matchStrings(subStringsPtr[lastIndex], "&") == 0) {
-                    subStringsPtr[lastIndex] = NULL;
+                if (isBackgroundProcess == 1) {
                     waitpid(pid, &status, WNOHANG);
                 } else {
                     waitpid(pid, &status, 0);
