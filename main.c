@@ -1,7 +1,7 @@
 #include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
 int main () {
 
@@ -82,14 +82,48 @@ int main () {
        
         // Handling Built-in Instructions
         if (matchStrings(subStringsPtr[0] , "cd") == 0) {
+            if (subStringsPtr[1] == NULL) {
+                chdir(getenv("HOME"));
+            } else if ( chdir(subStringsPtr[1]) != 0) {
+                printf("Could not Change Directory");
+            } 
 
         } else if (matchStrings(subStringsPtr[0] , "exit") == 0) {
-
+            free(inputStringPtr);
+            free(subStringsPtr);
+            exit(0);
+            // break;
+            // Using exit(0) should be used here. as exit makes the intent clear that this is the end of the program.
+            // exit(0) means everything ended all right. The argument of that function is the exit status.
         } else if (matchStrings(subStringsPtr[0] , "export") == 0) {
-
+            if (subStringsPtr[1] == NULL) {
+                printf("Wrong Input - Add a Key=Value pair\n");
+            } else {
+                char *a = subStringsPtr[1];
+                int i = 1;
+                int foundEqualToSign = 0;
+                while (a[i] != '\0' && foundEqualToSign != 1) {
+                    if (a[i] == '=') {
+                        foundEqualToSign = 1;
+                    }
+                    i += 1;
+                }
+                if (a[i] == '\0' && foundEqualToSign == 0) {
+                    printf("No Equal To Sign Found\n");
+                } else if (a[i] == '\0' && foundEqualToSign == 1) {
+                    printf("Enter a value for your key\n");
+                } else {
+                    a[i-1] = '\0';
+                    char *b = a + i;
+                    setenv(a, b, 1);
+                }
+            }
         } else {
-
+            // Handle external commands
+            // fork, exec, wait
         }
+
+        // Signal Handling
 
 
 
