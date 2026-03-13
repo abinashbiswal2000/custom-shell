@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 
 int main () {
 
@@ -12,6 +15,7 @@ int main () {
     size_t currentSize = 5;
     char **subStringsPtr = NULL;
     int subStrIndex = 0;
+    int lastIndex = 0;
 
 
     while (1) {
@@ -69,6 +73,7 @@ int main () {
             subStringsPtr = temp;
         }
         subStringsPtr[subStrIndex] = NULL;
+        lastIndex = subStrIndex - 1;
 
 
         /*
@@ -106,8 +111,7 @@ int main () {
                     if (a[i] == '=') {
                         foundEqualToSign = 1;
                     }
-                    i += 1;
-                }
+                    i += 1;                }
                 if (a[i] == '\0' && foundEqualToSign == 0) {
                     printf("No Equal To Sign Found\n");
                 } else if (a[i] == '\0' && foundEqualToSign == 1) {
@@ -121,6 +125,26 @@ int main () {
         } else {
             // Handle external commands
             // fork, exec, wait
+            pid_t pid = fork();
+            if (pid < 0) {
+                printf("Fork Failed\n");
+            } else if (pid == 0) {
+                if ( execvp(subStringsPtr[0], subStringsPtr) == -1) {
+                    fprintf(stderr, "Execvp Failed - [%s] Command not Found\n", subStringsPtr[0]);
+                    exit(127);
+                }
+            } else if (pid > 0) {
+                // This is the parent process
+                // Wait for child's completion
+                int status;
+                if (matchStrings(subStringsPtr[lastIndex], "&") == 0) {
+                    subStringsPtr[lastIndex] = NULL;
+                    waitpid(pid, &status, WNOHANG);
+                } else {
+                    waitpid(pid, &status, 0);
+                }
+            }
+            
         }
 
         // Signal Handling
