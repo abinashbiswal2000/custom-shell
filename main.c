@@ -76,6 +76,19 @@ int main () {
         subStringsPtr[subStrIndex] = NULL;
         lastIndex = subStrIndex - 1;
 
+        // Handling an empty input, i.e just enter
+        if (lastIndex < 0) {
+            len = 0;
+
+            free(inputStringPtr);
+            inputStringPtr = NULL; // We need to nullify to avoid the double free error.
+
+            free(subStringsPtr);
+            subStringsPtr = NULL;
+
+            continue;
+        }
+
 
         /*
         Make sense of the instruction
@@ -91,7 +104,7 @@ int main () {
             if (subStringsPtr[1] == NULL) {
                 chdir(getenv("HOME"));
             } else if ( chdir(subStringsPtr[1]) != 0) {
-                printf("Could not Change Directory");
+                printf("Could not Change Directory\n");
             } 
 
         } else if (matchStrings(subStringsPtr[0] , "exit") == 0) {
@@ -153,8 +166,8 @@ int main () {
             
         }
 
-        // Signal Handling
 
+        // Signal Handling
 
 
         // Free Resources and restore defaults
