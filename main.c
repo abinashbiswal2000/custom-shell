@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h>
 
 
 volatile sig_atomic_t is_waiting_for_input = 0;
@@ -163,7 +164,36 @@ int main () {
             if (pid < 0) {
                 printf("Fork Failed\n");
             } else if (pid == 0) {
+
+                // Handling Ctrl + C signal.
+                // Setting default behavior
                 signal(SIGINT, SIG_DFL);
+
+                // Handling IO Redirection
+                int i = 0;
+                int fd = 2;
+
+                while (subStringsPtr[i] != NULL) {
+                    if (matchStrings(subStringsPtr[i], ">")  == 0) {
+                        fd = open(subStringsPtr[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                        subStringsPtr[i] = NULL;
+                        break;
+                    } else if (matchStrings(subStringsPtr[i], ">>")  == 0) {
+                        fd = open(subStringsPtr[i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+                        subStringsPtr[i] = NULL;
+                        break;
+                    } else {
+                        i += 1;
+                    }
+                }
+                if (fd < 0) {
+                    printf("File Not Found\n");
+                    exit(-1);
+                } else if (fd > 2) {
+                    dup2(fd, 1);
+                    close(fd);
+                }
+
                 if ( execvp(subStringsPtr[0], subStringsPtr) == -1) {
                     fprintf(stderr, "Execvp Failed - [%s] Command not Found\n", subStringsPtr[0]);
                     exit(127);
