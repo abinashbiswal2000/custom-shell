@@ -4,9 +4,17 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
+
+
+volatile sig_atomic_t is_waiting_for_input = 0;
 
 
 int main () {
+
+    // Ctrl + C Signal Handling
+    // signal(SIGINT, SIG_IGN);
+    signal(SIGINT, ctrlCSignalHandler);
 
     char *inputStringPtr = NULL;
     int inputIndex = 0;
@@ -21,8 +29,14 @@ int main () {
 
     while (1) {
         // Take Input
+        is_waiting_for_input = 1;
         printf(">> ");
         getline(&inputStringPtr, &len, stdin);
+        // if (getline(&inputStringPtr, &len, stdin) == -1) {
+        //     printf("jajaja");
+        //     continue;
+        // }
+        is_waiting_for_input = 0;
         inputIndex = 0;
 
         // Parse Input and get substrings
@@ -149,6 +163,7 @@ int main () {
             if (pid < 0) {
                 printf("Fork Failed\n");
             } else if (pid == 0) {
+                signal(SIGINT, SIG_DFL);
                 if ( execvp(subStringsPtr[0], subStringsPtr) == -1) {
                     fprintf(stderr, "Execvp Failed - [%s] Command not Found\n", subStringsPtr[0]);
                     exit(127);
