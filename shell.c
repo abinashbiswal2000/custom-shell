@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 int matchStrings(char *a, char *b) {
     int i = 0;
@@ -19,5 +20,12 @@ void ctrlCSignalHandler(int sig) {
         write(1, "\n>> ", 4);
     } else {
         write(1, "\n", 1);
+    }
+}
+
+
+void zombieChildSignalHandler(int sig) {
+    while (waitpid(-1, NULL, WNOHANG) > 0) {
+        // Do Nothing
     }
 }

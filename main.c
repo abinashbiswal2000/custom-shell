@@ -16,6 +16,7 @@ int main () {
     // Ctrl + C Signal Handling
     // signal(SIGINT, SIG_IGN);
     signal(SIGINT, ctrlCSignalHandler);
+    signal(SIGCHLD, zombieChildSignalHandler);
 
     char *inputStringPtr = NULL;
     int inputIndex = 0;
@@ -210,10 +211,6 @@ int main () {
             }
             
         }
-
-
-        // Signal Handling
-
 
         // Free Resources and restore defaults
         free(inputStringPtr);
